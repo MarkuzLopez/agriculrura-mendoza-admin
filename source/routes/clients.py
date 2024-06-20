@@ -50,7 +50,6 @@ async def update_client(db: db_dependency, client_request: schema.ClientRequest,
     
     client_model = db.query(models.Clients).filter(models.Clients.id == client_id).first()    
     
-    print(client_id, 'sdasd')
     if client_model is None:
         raise HTTPException(status_code=404, detail='Client no found')
     
