@@ -15,6 +15,8 @@
 ## dependencys for project.
 -  pip install fastapi uvicorn.
 -  pip install sqlalchemy pydantic
+-  pip install python-jose
+-  pip install passlib 
 
 ## comand to start application. 
 - uvicorn main:app --reload
