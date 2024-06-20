@@ -17,6 +17,7 @@
 -  pip install sqlalchemy pydantic
 -  pip install python-jose
 -  pip install passlib 
+-  pip install bcrypt
 
 ## comand to start application. 
 - uvicorn main:app --reload

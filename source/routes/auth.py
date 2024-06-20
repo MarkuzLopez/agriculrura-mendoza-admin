@@ -9,6 +9,7 @@ from models import models
 from datetime import timedelta, datetime
 from jose import jwt, JWTError
 from starlette import status
+from schemas import schema
 
 
 router = APIRouter(
@@ -22,13 +23,6 @@ ALGORITHM = 'HS256';
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='/auth/token')
 
-class CreateUser(BaseModel):
-    username: str
-    email: str
-    first_name: str
-    last_name: str
-    password: str
-    role: str
 
 class Token(BaseModel):
     access_token: str
@@ -44,7 +38,6 @@ def get_db():
         db.close()
 
 db_dependency = Annotated[SessionLocal, Depends(get_db)]
-
 
 def authenticated_user(username: str, password: str, db):
     user = db.query(models.Users).filter(models.Users.username == username).first()
@@ -80,21 +73,23 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
 
 
 @router.post("/auth/", tags=['Auth'], status_code=status.HTTP_201_CREATED)
-async def create_user(db: db_dependency, create_user_req: CreateUser):
-    
-    create_user_model = models.Users(
-        emai = create_user_req.email,
+async def create_user(db: db_dependency, create_user_req: schema.CreateUser):
+            
+    user_model_db = models.Users(
+        email = create_user_req.email,
         username = create_user_req.username,
         first_name = create_user_req.first_name,
         last_name = create_user_req.last_name,       
-        role = create_user_req.role,
         hashed_password = bcrypt_context.hash(create_user_req.password),
+        role = create_user_req.role,
         is_active = True
     )
     
-    db.add(create_user_model)
+    db.add(user_model_db)
     db.commit()
+    db.refresh(user_model_db)
  
+    return user_model_db
 
     
 @router.post("/auth/token", tags=['Auth'], response_model=Token)
